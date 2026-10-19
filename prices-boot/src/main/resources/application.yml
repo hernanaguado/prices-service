@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: prices-service
+  datasource:
+    url: jdbc:h2:mem:prices;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  web:
+    # Error messages (including bean validation ones) are always in English, whatever the JVM locale or
+    # the client's Accept-Language header.
+    locale: en
+    locale-resolver: fixed
+  mvc:
+    format:
+      # Date-time parameters only accept ISO-8601, not the locale's short format.
+      date-time: iso
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    url: /openapi.yaml

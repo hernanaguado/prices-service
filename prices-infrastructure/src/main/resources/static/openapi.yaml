@@ -1,0 +1,158 @@
+openapi: 3.0.3
+info:
+  title: Prices API
+  description: Returns the price list and final price that apply to a brand product at a given date.
+  version: 1.0.0
+servers:
+  - url: /
+tags:
+  - name: Prices
+    description: Applicable price lookup
+paths:
+  /prices:
+    get:
+      tags:
+        - Prices
+      summary: Get the applicable price
+      description: >
+        Returns the price that applies to a product of a brand at the given date. When several
+        price lists overlap, the one with the highest priority wins; on a priority tie, the one
+        with the most recent start date wins.
+      operationId: getApplicablePrice
+      parameters:
+        - name: applicationDate
+          in: query
+          required: true
+          description: >
+            Local date-time in ISO-8601 format without time zone or offset, interpreted in the same
+            local time as the stored price data.
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/LocalDateTime'
+          example: '2020-06-14T10:00:00'
+        - name: productId
+          in: query
+          required: true
+          description: Product identifier.
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          example: 35455
+        - name: brandId
+          in: query
+          required: true
+          description: Brand identifier (1 = ZARA).
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          example: 1
+      responses:
+        '200':
+          description: Applicable price found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceResponse'
+        '400':
+          description: Missing, malformed or invalid parameter.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                title: Bad Request
+                status: 400
+                detail: Required parameter 'productId' is not present.
+                instance: /prices
+        '404':
+          description: No price applies for the given parameters.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                title: Not Found
+                status: 404
+                detail: No applicable price for productId 35455 and brandId 1 at 2019-01-01T00:00:00
+                instance: /prices
+        '500':
+          description: Unexpected server error.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                title: Internal Server Error
+                status: 500
+                detail: Unexpected error
+                instance: /prices
+components:
+  schemas:
+    PriceResponse:
+      type: object
+      required:
+        - productId
+        - brandId
+        - priceList
+        - startDate
+        - endDate
+        - price
+        - currency
+      properties:
+        productId:
+          type: integer
+          format: int64
+          example: 35455
+        brandId:
+          type: integer
+          format: int64
+          example: 1
+        priceList:
+          type: integer
+          format: int32
+          description: Identifier of the applied price list.
+          example: 1
+        startDate:
+          allOf:
+            - $ref: '#/components/schemas/LocalDateTime'
+          description: Start of the price list validity.
+          example: '2020-06-14T00:00:00'
+        endDate:
+          allOf:
+            - $ref: '#/components/schemas/LocalDateTime'
+          description: End of the price list validity.
+          example: '2020-12-31T23:59:59'
+        price:
+          type: number
+          description: Final price.
+          example: 35.50
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          description: ISO 4217 currency code.
+          example: EUR
+    LocalDateTime:
+      type: string
+      description: >
+        Local date-time in ISO-8601 format without time zone or offset (yyyy-MM-ddTHH:mm[:ss[.fraction]]).
+        The "date-time" format is not used because it requires an offset (RFC 3339).
+      example: '2020-06-14T10:00:00'
+    Problem:
+      type: object
+      description: Error response as defined by RFC 9457.
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri
