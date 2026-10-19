@@ -8,7 +8,8 @@ import java.util.Optional;
 
 /**
  * Chooses the price to apply among the candidates valid at a given date: the highest priority wins
- * and, on a priority tie, the one with the most recent start date wins.
+ * and, on a priority tie, the one with the most recent start date wins. On a full tie the first candidate wins,
+ * which is the one the repository returns first.
  */
 public final class PriceSelectionPolicy {
 

@@ -43,6 +43,19 @@ class PriceSelectionPolicyTest {
     }
 
     @Test
+    void breaksFullTieByCandidateOrder() {
+        // given
+        Price first = price(5, 1, LocalDateTime.of(2020, 6, 15, 0, 0));
+        Price second = price(6, 1, LocalDateTime.of(2020, 6, 15, 0, 0));
+
+        // when
+        Optional<Price> selected = PriceSelectionPolicy.selectApplicable(List.of(first, second));
+
+        // then
+        assertThat(selected).contains(first);
+    }
+
+    @Test
     void returnsEmptyWhenThereAreNoCandidates() {
         // given
         List<Price> candidates = List.of();

@@ -7,12 +7,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "PRICES")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 class PriceEntity {
 
     @Id
@@ -36,39 +41,4 @@ class PriceEntity {
 
     @Column(name = "CURR")
     private String currency;
-
-    protected PriceEntity() {
-    }
-
-    public BrandEntity getBrand() {
-        return brand;
-    }
-
-    public LocalDateTime getStartDate() {
-        return startDate;
-    }
-
-    public LocalDateTime getEndDate() {
-        return endDate;
-    }
-
-    public Integer getPriceList() {
-        return priceList;
-    }
-
-    public Long getProductId() {
-        return productId;
-    }
-
-    public Integer getPriority() {
-        return priority;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
 }

@@ -133,6 +133,7 @@ prices-service (parent POM: versions and plugins)
 ## Design decisions
 
 - **Priority resolved in the domain.** The repository returns all prices valid at the date; `PriceSelectionPolicy` picks the highest `priority`, and on a tie the most recent `startDate`. The rule stays in the domain and is unit tested without a database.
+- **Deterministic order in the query.** The repository sorts the candidates by `priority` desc, `startDate` desc and `id` desc, so on a full tie the most recently created price wins and the choice is never left to the database.
 - **`LocalDateTime` without time zone.** The source data has no zone, so none is added.
 - **`BigDecimal` / `DECIMAL(10,2)`** for exact money values.
 - **`BRAND` table with a foreign key**, as the statement defines `BRAND_ID`. The domain only uses `brandId`.
@@ -141,5 +142,5 @@ prices-service (parent POM: versions and plugins)
 - **API first.** `openapi.yaml` generates the API interface and models, and Swagger UI shows that same file.
 - **ProblemDetail (RFC 9457)** for all errors.
 - **MapStruct** for mappings, generated at compile time.
-- **Records, no Lombok.** The domain uses records; JPA entities are plain classes because JPA cannot use records.
+- **Records and Lombok.** The domain uses records. JPA entities cannot be records, so Lombok generates their getters and protected no-args constructor, and the constructors of the injected classes (`@RequiredArgsConstructor`). The domain module has no Lombok.
 - **Multi-stage Docker image** with a small JRE Alpine runtime (amd64 and arm64) and a non-root user.
